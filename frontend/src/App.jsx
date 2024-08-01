@@ -6,6 +6,8 @@ import ProtectedRoute from './components/Common/ProtectedRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import KnowledgebaseList from './pages/KnowledgebaseList';
+import KnowledgebaseDetail from './pages/KnowledgebaseDetail';
 
 const App = () => {
   return (
@@ -22,7 +24,17 @@ const App = () => {
                   <Dashboard />
                 </ProtectedRoute>
               } />
-              <Route path="/" element={<Navigate to="/login" />} />
+              <Route path="/knowledgebases" element={
+                <ProtectedRoute>
+                  <KnowledgebaseList />
+                </ProtectedRoute>
+              } />
+              <Route path="/knowledgebases/:id" element={
+                <ProtectedRoute>
+                  <KnowledgebaseDetail />
+                </ProtectedRoute>
+              } />
+              <Route path="/" element={<Navigate to="/dashboard" />} />
             </Routes>
           </div>
         </div>

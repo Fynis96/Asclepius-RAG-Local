@@ -20,15 +20,22 @@ export const AuthProvider = ({ children }) => {
       setUser(response.data);
       setIsAuthenticated(true);
     } catch (error) {
-      console.error('Error fetching user:', error);
+      console.error('Error fetching user:', error.response?.data || error.message);
       logout();
     }
   };
 
   const login = async (email, password) => {
-    const response = await apiLogin(email, password);
-    localStorage.setItem('token', response.data.access_token);
-    await fetchUser();
+    try {
+      console.log('Attempting login');
+      const response = await apiLogin(email, password);
+      console.log('Login response:', response);
+      localStorage.setItem('token', response.data.access_token);
+      await fetchUser();
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
+    }
   };
 
   const logout = () => {

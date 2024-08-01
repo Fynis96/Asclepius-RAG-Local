@@ -3,11 +3,7 @@ services:
     build: 
       context: ./frontend
       dockerfile: Dockerfile
-    develop:
-      watch:
-        - action: sync
-          path: ./frontend
-          target: /app
+    
     ports:
       - "5173:5173"
     volumes:
@@ -15,8 +11,17 @@ services:
       - /app/node_modules
     environment:
       - NODE_ENV=${NODE_ENV}
+      - CHOKIDAR_USEPOLLING=true
     stdin_open: true
     tty: true
+    develop:
+      watch:
+        - path: ./frontend/src
+          target: /app/src
+          action: sync
+        - path: ./frontend/public
+          target: /app/public
+          action: sync
     networks:
       - appnetwork
     depends_on:

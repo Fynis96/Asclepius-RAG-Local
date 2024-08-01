@@ -1,12 +1,12 @@
 import time
 import logging
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError
 from .core.database import engine, Base
 from .models import user, knowledgebase, document
-from .api.endpoints import auth, knowledgebase
+from .api.endpoints import auth, knowledgebase, user
 from .core.minio_client import ensure_bucket_exists
 from .core.config import settings
 
@@ -60,10 +60,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    logger.debug(f"Request: {request.method} {request.url}")
+    logger.debug(f"Headers: {request.headers}")
+    response = await call_next(request)
+    logger.debug(f"Response status: {response.status_code}")
+    return response
+
 # Include routers
 logger.info("Including routers...")
-app.include_router(auth.router, tags=["auth"])
-app.include_router(knowledgebase.router, tags=["knowledgebase"])
+app.include_router(auth.router, prefix="/api/v1", tags=["auth"])
+app.include_router(user.router, prefix="/api/v1", tags=["users"])
+app.include_router(knowledgebase.router, prefix="/api/v1", tags=["knowledgebase"])
 
 @app.get("/")
 def read_root():

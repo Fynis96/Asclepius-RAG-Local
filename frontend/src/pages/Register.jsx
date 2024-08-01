@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { register } from '../services/api';
 
 const Register = () => {
   const [email, setEmail] = useState('');
@@ -11,18 +11,19 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+
     if (password !== confirmPassword) {
       setError("Passwords don't match");
       return;
     }
+
     try {
-      await axios.post('http://localhost:80/register', {
-        email,
-        password
-      });
+      await register(email, password);
       navigate('/login');
     } catch (error) {
-      setError(error.response?.data?.detail || 'Registration failed');
+      console.error('Registration error:', error);
+      setError(error.response?.data?.detail || 'Registration failed. Please try again.');
     }
   };
 

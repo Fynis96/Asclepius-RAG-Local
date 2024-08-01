@@ -11,11 +11,13 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     try {
       await login(email, password);
       navigate('/dashboard');
     } catch (error) {
-      setError('Invalid email or password');
+      console.error('Login error:', error);
+      setError('Invalid email or password. Please try again.');
     }
   };
 
