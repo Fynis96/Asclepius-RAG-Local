@@ -13,9 +13,16 @@
 - Implement CICD pipeline
     - Flake8/ESLINT
     - Test Features
+- Endpoint for reindexing/updating existing indexes
+- Endpoints for managing and customizing the query pipeline
+- Endpoint for document similary search within a knowledgebase?
+- Implementing a modular pipeline system where users can chain together different components (e.g., retriever, reranker, query transformer).
+- Creating custom nodes for domain-specific tasks that can be integrated into the pipeline.
+- Offering preset pipelines for common use cases, which users can then customize.
+- Considering and Implementing ASYNC properly
+- Admin Dashboard
 
 # MajorFeatures
-- Qdrant connected to backend
 - LlamaIndex added in and quick sample workflow to test out
     - Complex workflows thereafter and the ability to switch between
     - Settings connected in collapsible settings
