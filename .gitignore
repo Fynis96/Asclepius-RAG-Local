@@ -7,3 +7,4 @@ minio_data/
 *.log
 .env.prod
 .env.dev
+logs/

@@ -1,6 +1,7 @@
 from minio import Minio
 from minio.error import S3Error
 from ..core.config import settings
+from ..core.logger import logger
 
 def get_minio_client():
     return Minio(
@@ -15,9 +16,10 @@ def ensure_bucket_exists(bucket_name: str):
     try:
         if not client.bucket_exists(bucket_name):
             client.make_bucket(bucket_name)
-            print(f"Bucket '{bucket_name}' created successfully")
+            logger.info(f"Bucket '{bucket_name}' created successfully")
         else:
-            print(f"Bucket '{bucket_name}' already exists")
+            logger.info(f"Bucket '{bucket_name}' already exists")
+            
     except S3Error as e:
-        print(f"Error occurred while creating bucket: {e}")
+        logger.error(f"Error occurred while creating bucket: {e}")
         raise

@@ -22,7 +22,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
             raise credentials_exception
         token_data = TokenData(email=email)
     except JWTError as e:
-        print(f"JWT Error: {str(e)}")
         raise credentials_exception
     user = get_user_by_email(db, email=token_data.email)
     if user is None:

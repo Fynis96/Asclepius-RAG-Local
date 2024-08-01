@@ -9,10 +9,8 @@ from .models import user, knowledgebase, document
 from .api.endpoints import auth, knowledgebase, user
 from .core.minio_client import ensure_bucket_exists
 from .core.config import settings
+from .core.logger import logger
 
-# Set up logging
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
 
 def wait_for_db(max_retries=5, retry_interval=5):
     retries = 0

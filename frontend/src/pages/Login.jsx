@@ -17,7 +17,7 @@ const Login = () => {
       navigate('/dashboard');
     } catch (error) {
       console.error('Login error:', error);
-      setError('Invalid email or password. Please try again.');
+      setError(error.response?.data?.detail || 'An error occurred during login. Please try again.');
     }
   };
 

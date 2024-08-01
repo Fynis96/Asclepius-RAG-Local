@@ -14,11 +14,46 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Auth
-export const login = (email, password) => 
-  api.post('/login', new URLSearchParams({ username: email, password }), {
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    if (error.response.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      try {
+        const refreshToken = localStorage.getItem('refreshToken');
+        const response = await refreshTokenApi(refreshToken);
+        localStorage.setItem('token', response.data.access_token);
+        localStorage.setItem('refreshToken', response.data.refresh_token);
+        originalRequest.headers['Authorization'] = `Bearer ${response.data.access_token}`;
+        return api(originalRequest);
+      } catch (refreshError) {
+        // Handle refresh token failure (e.g., logout user)
+        return Promise.reject(refreshError);
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
+export const login = (email, password) => {
+  const formData = new URLSearchParams();
+  formData.append('username', email);
+  formData.append('password', password);
+  
+  return api.post('/login', formData, {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
   });
+};
+
+export const refreshToken = (refresh_token) =>
+  api.post('/refresh', { refresh_token });
+
+export const logout = () =>
+  api.post('/logout');
+
 
 export const register = (email, password) => 
   api.post('/users/', { email, password });

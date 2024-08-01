@@ -41,3 +41,11 @@ def authenticate_user(db: Session, email: str, password: str):
     if not verify_password(password, user.hashed_password):
         return False
     return user
+
+def update_user_refresh_token(db: Session, user: User, refresh_token: str | None):
+    user.refresh_token = refresh_token
+    db.commit()
+    db.refresh(user)
+
+def get_user_by_refresh_token(db: Session, refresh_token: str):
+    return db.query(User).filter(User.refresh_token == refresh_token).first()
