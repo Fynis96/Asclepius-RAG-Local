@@ -7,6 +7,8 @@ from ...schemas.knowledgebase import Knowledgebase, KnowledgebaseCreate, Knowled
 from ...schemas.document import Document, DocumentCreate
 from ...schemas.user import User
 from ..deps import get_current_user
+from ...services.llama_index_service import index_documents, query_knowledgebase
+from pydantic import BaseModel
 
 router = APIRouter()
 
@@ -105,3 +107,37 @@ def delete_document(
         raise HTTPException(status_code=404, detail="Document not found")
     
     return crud_document.delete_document(db, document)
+
+class IndexRequest(BaseModel):
+    document_ids: List[int]
+
+class QueryRequest(BaseModel):
+    query: str
+
+@router.post("/knowledgebases/{knowledgebase_id}/index")
+def index_knowledgebase(
+    knowledgebase_id: int,
+    index_request: IndexRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    knowledgebase = crud_knowledgebase.get_knowledgebase(db, knowledgebase_id)
+    if not knowledgebase or knowledgebase.user_id != current_user.id:
+        raise HTTPException(status_code=404, detail="Knowledgebase not found")
+    
+    index_documents(knowledgebase_id, index_request.document_ids)
+    return {"message": "Knowledgebase indexed successfully"}
+
+@router.post("/knowledgebases/{knowledgebase_id}/query")
+def query_knowledgebase_endpoint(
+    knowledgebase_id: int,
+    query_request: QueryRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    knowledgebase = crud_knowledgebase.get_knowledgebase(db, knowledgebase_id)
+    if not knowledgebase or knowledgebase.user_id != current_user.id:
+        raise HTTPException(status_code=404, detail="Knowledgebase not found")
+    
+    response = query_knowledgebase(knowledgebase_id, query_request.query)
+    return {"response": str(response)}

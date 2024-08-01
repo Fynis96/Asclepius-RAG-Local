@@ -1,6 +1,4 @@
 # TODOS
-- Implement logout in the backend
-- Implement token refresh mechanism
 - Immense need for error handling improvments
 - Client-side validations
 - Configure CORS for dev & Prod
@@ -9,7 +7,6 @@
 - Functionality to retreive/view uploaded files on frontend
 - User Mgmt for user/profile
 - Unit/Integration/E2E testing
-- Implement structured logging/log mgmt
 - Keep up with Swagger API Documentation
 - Chatbot view
     - Collapsible settings w/ Chatbot view

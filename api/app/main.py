@@ -10,6 +10,7 @@ from .api.endpoints import auth, knowledgebase, user
 from .core.minio_client import ensure_bucket_exists
 from .core.config import settings
 from .core.logger import logger
+from .startup import run_startup_tasks
 
 
 def wait_for_db(max_retries=5, retry_interval=5):
@@ -44,6 +45,10 @@ async def startup_event():
         # Ensure MinIO bucket exists
         logger.info("Ensuring MinIO bucket exists...")
         ensure_bucket_exists(settings.MINIO_BUCKET_NAME)
+        
+        logger.info("Running startup tasks...")
+        run_startup_tasks()
+        
         logger.info("Startup tasks completed successfully.")
     except Exception as e:
         logger.error(f"Error during startup: {str(e)}")
