@@ -69,6 +69,7 @@ services:
       - "11434:11434"
     volumes:
       - /home/ollama:/root/.ollama
+      - ./entrypoint.sh:/entrypoint.sh
     restart: unless-stopped
     networks:
       - appnetwork
@@ -82,6 +83,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+    entrypoint: ["/usr/bin/bash", "/entrypoint.sh"]
 
   postgresql:
     image: postgres:13
