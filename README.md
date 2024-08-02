@@ -3,6 +3,7 @@
 - Client-side validations
 - Configure CORS for dev & Prod
 - Configure Docker-Compose.yaml's for Dev/Prod
+- Ensure all Secrets/Env variables are HANDLED, and not all over the place
 - File type/size validations/limitations
 - Functionality to retreive/view uploaded files on frontend
 - User Mgmt for user/profile
