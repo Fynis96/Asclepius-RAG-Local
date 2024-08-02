@@ -28,7 +28,6 @@ def wait_for_db(max_retries=5, retry_interval=5):
     else:
         raise Exception("Unable to connect to the database after multiple retries")
 
-# Wait for the database to be ready
 logger.info("Waiting for database connection...")
 wait_for_db()
 
