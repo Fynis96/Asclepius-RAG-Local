@@ -57,6 +57,7 @@ services:
     depends_on:
       postgresql:
         condition: service_healthy
+      
     restart: unless-stopped
     networks:
       - appnetwork
@@ -93,14 +94,19 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     restart: unless-stopped
     shm_size: 128mb
     networks:
       - appnetwork
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
-      timeout: 5s
+      timeout: 10s
       retries: 5
 
   qdrant:

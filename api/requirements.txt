@@ -10,6 +10,7 @@ alembic
 python-multipart
 pydantic
 pydantic-settings
+pydantic[email]
 minio
 qdrant-client
 llama-index
