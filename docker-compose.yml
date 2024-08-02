@@ -151,4 +151,3 @@ volumes:
   postgres_data:
   minio_data:
   qdrant_data:
-  ollama_data:

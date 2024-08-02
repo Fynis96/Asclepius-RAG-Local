@@ -1,0 +1,51 @@
+node_modules
+npm-debug.log
+Dockerfile
+.dockerignore
+.git
+.gitignore
+ollama_data/
+postgres_data/
+qdrant_data/
+logs/
+# Ignore all data folders
+**/data/
+*_data/
+
+# Version control
+.git
+.gitignore
+
+# Node.js (for react-app)
+node_modules
+npm-debug.log
+
+# Python (for fastapi-app)
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Docker
+Dockerfile
+docker-compose.yml

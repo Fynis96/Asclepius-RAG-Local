@@ -27,5 +27,6 @@ def ensure_ollama_model():
     logger.error(f"Failed to pull model {settings.OLLAMA_MODEL} after {max_retries} attempts")
 
 def run_startup_tasks():
-    ensure_ollama_model()
+    # ensure_ollama_model()
+    pass
     # Add other startup tasks here if needed

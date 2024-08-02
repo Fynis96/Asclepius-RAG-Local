@@ -4,3 +4,6 @@ Dockerfile
 .dockerignore
 .git
 .gitignore
+ollama_data/
+postgres_data/
+qdrant_data/
