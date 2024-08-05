@@ -36,13 +36,18 @@ def alembic_migrations():
     try:
         logger.info("Starting Alembic migrations...")
         alembic_ini_path = os.path.join(current_dir, '..', 'alembic.ini')
+        logger.info(f"Alembic.ini path: {alembic_ini_path}")
         alembic_cfg = Config(alembic_ini_path)
+        logger.info("Alembic config created")
         alembic_cfg.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
         logger.info(f"Using database URL: {settings.DATABASE_URL}")
+        logger.info("Starting upgrade to 'head'...")
         command.upgrade(alembic_cfg, "head")
+        logger.info("Upgrade to 'head' completed")
         logger.info("Alembic migrations completed successfully.")
     except Exception as e:
         logger.error(f"Error during Alembic migrations: {str(e)}")
+        logger.exception("Full traceback:")
         raise
         
 

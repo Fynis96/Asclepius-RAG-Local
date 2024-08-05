@@ -1,12 +1,12 @@
 services:
   reset-script:
-    image: bash
+    image: alpine
     volumes:
       - ./reset-script.sh:/reset-script.sh
       - postgres_data:/var/lib/postgresql/data
       - minio_data:/data
       - qdrant_data:/qdrant/storage
-    command: ["/bin/bash", "/reset-script.sh"]
+    command: ["/bin/sh", "/reset-script.sh"]
 
 volumes:
   postgres_data:

@@ -42,10 +42,12 @@ async def startup_event():
         # Create tables
         logger.info("Creating database tables...")
         Base.metadata.create_all(bind=engine)
+        logger.info("Database tables created successfully.")
 
         # Ensure MinIO bucket exists
         logger.info("Ensuring MinIO bucket exists...")
         ensure_bucket_exists(settings.MINIO_BUCKET_NAME)
+        logger.info("MinIO bucket check completed.")
         
         logger.info("Running startup tasks...")
         run_startup_tasks()
@@ -53,6 +55,7 @@ async def startup_event():
         logger.info("Startup tasks completed successfully.")
     except Exception as e:
         logger.error(f"Error during startup: {str(e)}")
+        logger.exception("Full traceback:")
         raise
     
 # Configure CORS
