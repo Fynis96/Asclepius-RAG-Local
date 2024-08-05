@@ -39,8 +39,9 @@ def alembic_migrations():
         logger.info(f"Alembic.ini path: {alembic_ini_path}")
         alembic_cfg = Config(alembic_ini_path)
         logger.info("Alembic config created")
+        # Set the sqlalchemy.url in the config
         alembic_cfg.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
-        logger.info(f"Using database URL: {settings.DATABASE_URL}")
+        
         logger.info("Starting upgrade to 'head'...")
         command.upgrade(alembic_cfg, "head")
         logger.info("Upgrade to 'head' completed")

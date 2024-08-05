@@ -20,12 +20,12 @@ echo "Starting services with fresh data..."
 docker compose up -d
 
 echo "Running database migrations..."
-docker compose exec -e POSTGRES_USER -e POSTGRES_PASSWORD -e POSTGRES_DB fastapi-app alembic upgrade head
+docker compose exec -e POSTGRES_USER -e POSTGRES_PASSWORD -e POSTGRES_DB fastapi-app bash -c "cd /app && alembic upgrade head"
 
 echo "Creating new migration if needed..."
-docker compose exec -e POSTGRES_USER -e POSTGRES_PASSWORD -e POSTGRES_DB fastapi-app alembic revision --autogenerate -m "Auto-generated migration" || true
+docker compose exec -e POSTGRES_USER -e POSTGRES_PASSWORD -e POSTGRES_DB fastapi-app bash -c "cd /app && alembic revision --autogenerate -m 'Auto-generated migration'" || true
 
 echo "Applying any new migrations..."
-docker compose exec -e POSTGRES_USER -e POSTGRES_PASSWORD -e POSTGRES_DB fastapi-app alembic upgrade head
+docker compose exec -e POSTGRES_USER -e POSTGRES_PASSWORD -e POSTGRES_DB fastapi-app bash -c "cd /app && alembic upgrade head"
 
 echo "Reset complete. Your environment is now fresh and updated."

@@ -10,4 +10,3 @@ ollama_data/
 .env.dev
 logs/
 .aider*
-alembic/
