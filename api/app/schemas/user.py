@@ -15,7 +15,7 @@ class User(UserBase):
     is_active: bool
 
     class Config:
-        from_attributes = True 
+        from_attributes = True
 
 class Token(BaseModel):
     access_token: str

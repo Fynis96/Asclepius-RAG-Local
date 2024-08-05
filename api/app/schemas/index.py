@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import List, Optional
 
-class Indexbase(BaseModel):
+class IndexBase(BaseModel):
     name: str
     embed_model: str
     enabled_hybrid: bool = True
@@ -23,4 +23,4 @@ class IndexResponse(IndexBase):
     index_size: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True

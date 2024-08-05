@@ -29,7 +29,15 @@ services:
 
   fastapi-app:
     build: ./api/
-    command: uvicorn app.main:app --host 0.0.0.0 --port 80 --reload
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        apt-get update && apt-get install -y netcat-openbsd &&
+        echo 'Waiting for database...' &&
+        while ! nc -z postgresql 5432; do sleep 1; done &&
+        echo 'Database is up' &&
+        uvicorn app.main:app --host 0.0.0.0 --port 80 --reload
+      "
     develop:
       watch:
         - action: sync
@@ -73,6 +81,8 @@ services:
     restart: unless-stopped
     networks:
       - appnetwork
+    environment:
+      - OLLAMA_MODEL=llama2
     deploy:
       resources:
         reservations:

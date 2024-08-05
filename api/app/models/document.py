@@ -9,7 +9,7 @@ class Document(Base):
     filename = Column(String, index=True)
     file_path = Column(String)
     file_type = Column(String)
-    metadata = Column(JSON, nullable=True)
+    doc_metadata = Column(JSON, nullable=True)
     minio_bucket = Column(String)
     is_indexed = Column(Boolean, default=False)
 

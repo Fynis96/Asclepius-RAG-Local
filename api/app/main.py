@@ -13,19 +13,21 @@ from .core.logger import logger
 from .startup import run_startup_tasks
 
 
-def wait_for_db(max_retries=5, retry_interval=5):
+def wait_for_db(max_retries=5, retry_interval=5, timeout=10):
     retries = 0
     while retries < max_retries:
         try:
-            # Attempt to create a connection
-            with engine.connect() as connection:
-                print("Successfully connected to the database")
+            # Attempt to create a connection with a timeout
+            with engine.connect().execution_options(timeout=timeout) as connection:
+                logger.info("Successfully connected to the database")
                 break
-        except OperationalError:
+        except OperationalError as e:
             retries += 1
-            print(f"Database connection attempt {retries}/{max_retries} failed. Retrying in {retry_interval} seconds...")
+            logger.warning(f"Database connection attempt {retries}/{max_retries} failed. Error: {str(e)}")
+            logger.info(f"Retrying in {retry_interval} seconds...")
             time.sleep(retry_interval)
     else:
+        logger.error("Unable to connect to the database after multiple retries")
         raise Exception("Unable to connect to the database after multiple retries")
 
 logger.info("Waiting for database connection...")

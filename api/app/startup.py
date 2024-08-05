@@ -1,9 +1,15 @@
 import requests
 import time
+import os
 from .core.config import settings
 import logging
+from alembic import command
+from alembic.config import Config
 
 logger = logging.getLogger(__name__)
+
+# Get the directory of the current file
+current_dir = os.path.dirname(os.path.abspath(__file__))
 
 def ensure_ollama_model():
     max_retries = 5
@@ -25,8 +31,23 @@ def ensure_ollama_model():
             time.sleep(10)  # Wait for 10 seconds before retrying
     
     logger.error(f"Failed to pull model {settings.OLLAMA_MODEL} after {max_retries} attempts")
+    
+def alembic_migrations():
+    try:
+        logger.info("Starting Alembic migrations...")
+        alembic_ini_path = os.path.join(current_dir, '..', 'alembic.ini')
+        alembic_cfg = Config(alembic_ini_path)
+        alembic_cfg.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+        logger.info(f"Using database URL: {settings.DATABASE_URL}")
+        command.upgrade(alembic_cfg, "head")
+        logger.info("Alembic migrations completed successfully.")
+    except Exception as e:
+        logger.error(f"Error during Alembic migrations: {str(e)}")
+        raise
+        
 
 def run_startup_tasks():
     # ensure_ollama_model()
-    pass
+    alembic_migrations()
     # Add other startup tasks here if needed
+    
