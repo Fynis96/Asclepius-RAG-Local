@@ -22,6 +22,7 @@
 - Offering preset pipelines for common use cases, which users can then customize.
 - Considering and Implementing ASYNC properly
 - Admin Dashboard
+- Implement multi-select of files/folders for uploading to a knowledgebase
 
 # MajorFeatures
 - LlamaIndex added in and quick sample workflow to test out
