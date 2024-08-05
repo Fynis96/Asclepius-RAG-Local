@@ -19,3 +19,4 @@ llama-index-llms-ollama
 llama-index-vector-stores-qdrant
 PyPDF2
 sentence-transformers
+fastembed

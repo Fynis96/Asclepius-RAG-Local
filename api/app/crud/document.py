@@ -25,7 +25,8 @@ def create_document(db: Session, document: DocumentCreate, knowledgebase_id: int
         filename=document.filename,
         file_path=file_path,
         file_type=document.file_type,
-        knowledgebase_id=knowledgebase_id
+        knowledgebase_id=knowledgebase_id,
+        minio_bucket=settings.MINIO_BUCKET_NAME
     )
     db.add(db_document)
     db.commit()

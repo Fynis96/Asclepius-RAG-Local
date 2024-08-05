@@ -108,6 +108,38 @@ def delete_document(
     
     return crud_document.delete_document(db, document)
 
+# def index_document(
+#     knowledgebase_id: int,
+#     document_id: int,
+#     db: Session = Depends(get_db),
+#     current_user: User = Depends(get_current_user)
+# ):
+#     knowledgebase = crud_knowledgebase.get_knowledgebase(db, knowledgebase_id)
+#     if not knowledgebase or knowledgebase.user_id != current_user.id:
+#         raise HTTPException(status_code=404, detail="Knowledgebase not found")
+    
+#     document = crud_document.get_document(db, document_id)
+#     if not document or document.knowledgebase_id != knowledgebase_id:
+#         raise HTTPException(status_code=404, detail="Document not found")
+    
+
+def index_knowledgebase():
+    pass
+
+def get_index():
+    pass
+
+def get_indices():
+    pass
+
+def delete_index():
+    pass
+
+def update_index():
+    pass
+
+# Clean up below. Queries to its own chat endpoint
+
 class IndexRequest(BaseModel):
     document_ids: List[int]
 
