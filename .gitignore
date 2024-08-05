@@ -9,3 +9,5 @@ ollama_data/
 .env.prod
 .env.dev
 logs/
+.aider*
+alembic/

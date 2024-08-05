@@ -43,7 +43,7 @@ def index_documents(knowledgebase_id: int, document_ids: list[int]):
 
         # Create Qdrant vector store
         vector_store = QdrantVectorStore(client=qdrant_client, collection_name=f"knowledgebase_{knowledgebase_id}")
-
+        
         # Use HuggingFace embeddings
         # embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
         embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
@@ -60,6 +60,7 @@ def index_documents(knowledgebase_id: int, document_ids: list[int]):
             documents, 
             storage_context=storage_context
         )
+        
 
     return index
 
