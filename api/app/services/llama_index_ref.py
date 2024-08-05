@@ -31,7 +31,7 @@ from llama_index.core.chat_engine import CondensePlusContextChatEngine
 from llama_index.core.callbacks import CallbackManager, LlamaDebugHandler
 from pydantic import BaseModel
 from llama_index.core.llms import ChatMessage
-
+VectorStoreIndex.from_documents()
 
 llama_debug = LlamaDebugHandler(print_trace_on_end=True)
 callback_manager = CallbackManager([llama_debug])

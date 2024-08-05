@@ -8,6 +8,7 @@ from ...schemas.document import Document, DocumentCreate
 from ...schemas.user import User
 from ..deps import get_current_user
 from ...services.llama_index_service import index_documents, query_knowledgebase
+from ...services.index_service import index_service
 from pydantic import BaseModel
 
 router = APIRouter()

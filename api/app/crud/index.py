@@ -20,6 +20,9 @@ def create_index(
 def get_index(db: Session, index_id: int):
     return db.query(Index).filter(Index.id == index_id).first()
 
+def get_index_by_knowledgebase(db: Session, knowledgebase_id: int):
+    return db.query(Index).filter(Index.knowledgebase_id == knowledgebase_id).first()
+
 def get_indices(db: Session, skip: int = 0, limit: int = 100):
     return db.query(Index).offset(skip).limit(limit).all()
 
