@@ -1,22 +1,18 @@
 from pydantic import BaseModel
 from typing import List
 
-class ChatbotCreate(BaseModel):
+class ChatbotBase(BaseModel):
     name: str
     model: str
     temperature: float
     chatmode: str
     engine_type: str
-    index_id: int
+    index: Optional[int] = None
 
-class ChatbotResponse(ChatbotCreate):
-    id: int
-    user_id: int
+class ChatbotCreate(ChatbotBase):
+    pass
 
-class ChatCreate(BaseModel):
-    chatbot_id: int
-
-class ChatResponse(ChatCreate):
+class ChatbotResponse(ChatbotBase):
     id: int
     user_id: int
 
@@ -31,4 +27,6 @@ class MessageResponse(MessageCreate):
 
 class ChatHistoryResponse(BaseModel):
     messages: List[MessageResponse]
+
+
 

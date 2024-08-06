@@ -23,6 +23,7 @@
 - Considering and Implementing ASYNC properly
 - Admin Dashboard
 - Implement multi-select of files/folders for uploading to a knowledgebase
+- Move entrypoint/reset scripts to script folder, update yamls
 
 # MajorFeatures
 - LlamaIndex added in and quick sample workflow to test out
