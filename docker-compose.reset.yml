@@ -6,7 +6,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - minio_data:/data
       - qdrant_data:/qdrant/storage
-    command: ["/bin/sh", "/reset-script.sh"]
+    command: ["/bin/sh", "-c", "apk add --no-cache bash && /bin/bash /reset-script.sh"]
 
 volumes:
   postgres_data:
