@@ -14,4 +14,4 @@ class Index(Base, TimestampMixin):
     knowledgebase_id = Column(Integer, ForeignKey("knowledgebases.id"))
     document_ids = Column(JSON)    
 
-    knowledgebase = relationship("Knowledgebase", back_populates="index")
+    documents = relationship("Document", back_populates="index")

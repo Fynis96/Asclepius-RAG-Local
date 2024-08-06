@@ -1,10 +1,6 @@
-import time
-import logging
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine
-from sqlalchemy.exc import OperationalError
-from .core.database import engine, Base
+from .core.database import Base, engine
 from .models import user, knowledgebase, document
 from .api.endpoints import auth, knowledgebase, user
 from .core.minio_client import ensure_bucket_exists
@@ -12,33 +8,16 @@ from .core.config import settings
 from .core.logger import logger
 from .startup import run_startup_tasks
 
-
-def wait_for_db(max_retries=5, retry_interval=5, timeout=10):
-    retries = 0
-    while retries < max_retries:
-        try:
-            # Attempt to create a connection with a timeout
-            with engine.connect().execution_options(timeout=timeout) as connection:
-                logger.info("Successfully connected to the database")
-                break
-        except OperationalError as e:
-            retries += 1
-            logger.warning(f"Database connection attempt {retries}/{max_retries} failed. Error: {str(e)}")
-            logger.info(f"Retrying in {retry_interval} seconds...")
-            time.sleep(retry_interval)
-    else:
-        logger.error("Unable to connect to the database after multiple retries")
-        raise Exception("Unable to connect to the database after multiple retries")
-
-logger.info("Waiting for database connection...")
-wait_for_db()
-
 app = FastAPI()
 
 @app.on_event("startup")
 async def startup_event():
     logger.info("Running startup event...")
     try:
+        if not run_startup_tasks():
+            logger.error("Startup tasks failed. Aborting application startup.")
+            raise SystemExit("Startup tasks failed")
+        
         # Create tables
         logger.info("Creating database tables...")
         Base.metadata.create_all(bind=engine)
@@ -49,14 +28,11 @@ async def startup_event():
         ensure_bucket_exists(settings.MINIO_BUCKET_NAME)
         logger.info("MinIO bucket check completed.")
         
-        logger.info("Running startup tasks...")
-        run_startup_tasks()
-        
         logger.info("Startup tasks completed successfully.")
     except Exception as e:
         logger.error(f"Error during startup: {str(e)}")
         logger.exception("Full traceback:")
-        raise
+        raise SystemExit("Application startup failed")
     
 # Configure CORS
 app.add_middleware(

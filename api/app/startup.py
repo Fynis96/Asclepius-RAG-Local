@@ -5,6 +5,8 @@ from .core.config import settings
 import logging
 from alembic import command
 from alembic.config import Config
+from sqlalchemy import create_engine
+from sqlalchemy.exc import OperationalError
 
 logger = logging.getLogger(__name__)
 
@@ -49,11 +51,42 @@ def alembic_migrations():
     except Exception as e:
         logger.error(f"Error during Alembic migrations: {str(e)}")
         logger.exception("Full traceback:")
-        raise
-        
+        # Instead of raising, we'll return False to indicate failure
+        return False
+    return True
+
+def wait_for_db(max_retries=30, retry_interval=2):
+    logger.info("Waiting for database connection...")
+    engine = create_engine(settings.DATABASE_URL)
+    for attempt in range(max_retries):
+        try:
+            with engine.connect() as connection:
+                logger.info("Successfully connected to the database")
+                return True
+        except OperationalError as e:
+            if attempt < max_retries - 1:
+                logger.warning(f"Database connection attempt {attempt + 1}/{max_retries} failed. Retrying in {retry_interval} seconds...")
+                time.sleep(retry_interval)
+            else:
+                logger.error("Failed to connect to the database after maximum retries")
+                return False
 
 def run_startup_tasks():
-    # ensure_ollama_model()
-    alembic_migrations()
-    # Add other startup tasks here if needed
+    try:
+        if not wait_for_db():
+            logger.error("Failed to connect to the database. Aborting startup.")
+            return False
+        
+        # if not alembic_migrations():
+        #     logger.error("Alembic migrations failed. Aborting startup.")
+        #     return False
+        
+        # ensure_ollama_model()  # Uncomment if needed
+        # Add other startup tasks here if needed
+        logger.info("All startup tasks completed successfully.")
+        return True
+    except Exception as e:
+        logger.error(f"Error during startup tasks: {str(e)}")
+        logger.exception("Full traceback:")
+        return False
     
