@@ -10,7 +10,7 @@ class Knowledgebase(Base, TimestampMixin):
     name = Column(String, index=True)
     description = Column(String)
     user_id = Column(Integer, ForeignKey("users.id"))
-    is_indexed = Column(Boolean, default=False)
+    is_indexed = Column(Boolean, default=False, index=True)
     
     index = relationship("Index", uselist=False, back_populates="knowledgebase")
     user = relationship("User", back_populates="knowledgebases")

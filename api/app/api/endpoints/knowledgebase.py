@@ -3,14 +3,14 @@ from sqlalchemy.orm import Session
 from typing import List
 from ...core.database import get_db
 from ...crud import knowledgebase as crud_knowledgebase, document as crud_document
-from ...schemas.knowledgebase import Knowledgebase, KnowledgebaseCreate, KnowledgebaseUpdate
+from ...schemas.knowledgebase import Knowledgebase, KnowledgebaseCreate, KnowledgebaseUpdate, KnowledgebaseResponse
 from ...schemas.document import Document, DocumentCreate
 from ...schemas.user import User
 from ..deps import get_current_user
 from pydantic import BaseModel
 router = APIRouter()
 
-@router.post("/knowledgebases/", response_model=Knowledgebase)
+@router.post("/knowledgebases/", response_model=KnowledgebaseResponse)
 def create_knowledgebase(
     knowledgebase: KnowledgebaseCreate,
     db: Session = Depends(get_db),
@@ -18,7 +18,7 @@ def create_knowledgebase(
 ):
     return crud_knowledgebase.create_knowledgebase(db=db, knowledgebase=knowledgebase, user_id=current_user.id)
 
-@router.get("/knowledgebases/", response_model=List[Knowledgebase])
+@router.get("/knowledgebases/", response_model=List[KnowledgebaseResponse])
 def read_knowledgebases(
     skip: int = 0,
     limit: int = 100,
@@ -27,7 +27,7 @@ def read_knowledgebases(
 ):
     return crud_knowledgebase.get_knowledgebases(db, user_id=current_user.id, skip=skip, limit=limit)
 
-@router.get("/knowledgebases/{knowledgebase_id}", response_model=Knowledgebase)
+@router.get("/knowledgebases/{knowledgebase_id}", response_model=KnowledgebaseResponse)
 def read_knowledgebase(
     knowledgebase_id: int,
     db: Session = Depends(get_db),
@@ -38,7 +38,7 @@ def read_knowledgebase(
         raise HTTPException(status_code=404, detail="Knowledgebase not found")
     return knowledgebase
 
-@router.put("/knowledgebases/{knowledgebase_id}", response_model=Knowledgebase)
+@router.put("/knowledgebases/{knowledgebase_id}", response_model=KnowledgebaseResponse)
 def update_knowledgebase(
     knowledgebase_id: int,
     knowledgebase: KnowledgebaseUpdate,
@@ -50,7 +50,7 @@ def update_knowledgebase(
         raise HTTPException(status_code=404, detail="Knowledgebase not found")
     return crud_knowledgebase.update_knowledgebase(db, db_knowledgebase, knowledgebase)
 
-@router.delete("/knowledgebases/{knowledgebase_id}", response_model=Knowledgebase)
+@router.delete("/knowledgebases/{knowledgebase_id}", response_model=KnowledgebaseResponse)
 def delete_knowledgebase(
     knowledgebase_id: int,
     db: Session = Depends(get_db),

@@ -32,7 +32,8 @@ class IndexService:
 
         # Create a new index entry in the database
         db_index = crud_index.create_index(self.db, {"knowledgebase_id": knowledgebase_id})
-        collection_name = db_index.qdrant_collection_name
+        collection_name = f"kb_{knowledgebase_id}_index_{db_index.id}"
+        db_index = crud_index.update_index(self.db, db_index, {"qdrant_collection_name": collection_name})
 
         try:
             # Delete collection if it exists
@@ -73,9 +74,10 @@ class IndexService:
                     logger.warning(f"Attempt {attempt + 1} failed. Retrying in {delay} seconds...")
                     await asyncio.sleep(delay)
 
-            # Update index size in the database
+            # Update index size and set is_indexed to True in the database
             new_size = len(documents)
             crud_index.update_index(self.db, db_index, {"index_size": new_size})
+            crud_knowledgebase.update_knowledgebase(self.db, db_knowledgebase, {"is_indexed": True})
 
             return index
         except Exception as e:

@@ -14,6 +14,10 @@ class KnowledgebaseUpdate(BaseModel):
 class Knowledgebase(KnowledgebaseBase):
     id: int
     user_id: int
+    is_indexed: bool
 
     class Config:
         from_attributes = True
+
+class KnowledgebaseResponse(Knowledgebase):
+    pass

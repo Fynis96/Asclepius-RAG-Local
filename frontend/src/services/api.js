@@ -22,14 +22,17 @@ api.interceptors.response.use(
       if (error.response.status === 401 && !originalRequest._retry) {
         originalRequest._retry = true;
         try {
-          const refreshToken = localStorage.getItem('refreshToken');
-          const response = await refreshToken(refreshToken);
+          const refreshTokenValue = localStorage.getItem('refreshToken');
+          const response = await refreshToken(refreshTokenValue);
           localStorage.setItem('token', response.data.access_token);
           localStorage.setItem('refreshToken', response.data.refresh_token);
           originalRequest.headers['Authorization'] = `Bearer ${response.data.access_token}`;
           return api(originalRequest);
         } catch (refreshError) {
           // Handle refresh token failure (e.g., logout user)
+          localStorage.removeItem('token');
+          localStorage.removeItem('refreshToken');
+          window.location.href = '/login'; // Redirect to login page
           return Promise.reject(refreshError);
         }
       }

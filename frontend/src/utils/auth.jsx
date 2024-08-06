@@ -6,13 +6,18 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const refreshTokenValue = localStorage.getItem('refreshToken');
-    if (token && refreshTokenValue) {
-      fetchUser();
-    }
+    const initializeAuth = async () => {
+      const token = localStorage.getItem('token');
+      const refreshTokenValue = localStorage.getItem('refreshToken');
+      if (token && refreshTokenValue) {
+        await fetchUser();
+      }
+      setIsLoading(false);
+    };
+    initializeAuth();
   }, []);
 
   const fetchUser = async () => {
@@ -64,8 +69,12 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  if (isLoading) {
+    return <div>Loading...</div>; // Or any loading component
+  }
+
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, login, logout, refreshTokenAndRetry }}>
       {children}
     </AuthContext.Provider>
   );

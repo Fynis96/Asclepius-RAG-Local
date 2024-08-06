@@ -22,12 +22,6 @@ def create_index(
     db.commit()
     db.refresh(db_index)
     
-    # Generate qdrant_collection_name after we have the index id
-    qdrant_collection_name = f"index_{db_index.id}"
-    db_index.qdrant_collection_name = qdrant_collection_name
-    db.commit()
-    db.refresh(db_index)
-    
     return db_index
 
 def get_index(db: Session, index_id: int):

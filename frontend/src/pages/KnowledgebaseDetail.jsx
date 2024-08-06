@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { getKnowledgebase, getDocuments, createDocument, deleteDocument, runKnowledgebaseIndexing } from '../services/api';
-import { useNavigate } from 'react-router-dom';
 
 const KnowledgebaseDetail = () => {
   const { id } = useParams();
@@ -81,6 +80,17 @@ const KnowledgebaseDetail = () => {
       <h1 className="text-3xl font-bold mb-6">{knowledgebase.name}</h1>
       {error && <p className="text-red-500 mb-4">{error}</p>}
       <p className="text-gray-600 mb-6">{knowledgebase.description}</p>
+
+      <div className="flex justify-between items-center mb-4">
+        {knowledgebase.is_indexed && (
+          <button
+            onClick={() => navigate(`/chat/${id}`)}
+            className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
+          >
+            Chat with Knowledgebase
+          </button>
+        )}
+      </div>
 
       <div className="flex justify-between items-center mb-8">
         <form onSubmit={handleUpload} className="flex-grow mr-4">
