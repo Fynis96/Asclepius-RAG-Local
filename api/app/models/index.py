@@ -15,3 +15,4 @@ class Index(Base, TimestampMixin):
     document_ids = Column(JSON)    
 
     documents = relationship("Document", back_populates="index")
+    knowledgebase = relationship("Knowledgebase", back_populates="index")

@@ -20,3 +20,4 @@ llama-index-vector-stores-qdrant
 PyPDF2
 sentence-transformers
 fastembed
+fastembed-gpu

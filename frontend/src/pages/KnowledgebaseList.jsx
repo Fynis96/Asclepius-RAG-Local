@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getKnowledgebases, createKnowledgebase, deleteKnowledgebase } from '../services/api';
+import { useNavigate } from 'react-router-dom';
 
 const KnowledgebaseList = () => {
   const [knowledgebases, setKnowledgebases] = useState([]);
   const [newKnowledgebaseName, setNewKnowledgebaseName] = useState('');
   const [newKnowledgebaseDescription, setNewKnowledgebaseDescription] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchKnowledgebases();
@@ -17,6 +20,7 @@ const KnowledgebaseList = () => {
       setKnowledgebases(response.data);
     } catch (error) {
       console.error('Error fetching knowledgebases:', error);
+      setError('Failed to fetch knowledgebases. Please try again.');
     }
   };
 
@@ -29,6 +33,7 @@ const KnowledgebaseList = () => {
       fetchKnowledgebases();
     } catch (error) {
       console.error('Error creating knowledgebase:', error);
+      setError('Failed to create knowledgebase. Please try again.');
     }
   };
 
@@ -38,12 +43,14 @@ const KnowledgebaseList = () => {
       fetchKnowledgebases();
     } catch (error) {
       console.error('Error deleting knowledgebase:', error);
+      setError('Failed to delete knowledgebase. Please try again.');
     }
   };
 
   return (
     <div className="max-w-4xl mx-auto">
       <h1 className="text-3xl font-bold mb-6">Knowledgebases</h1>
+      {error && <p className="text-red-500 mb-4">{error}</p>}
       
       <form onSubmit={handleCreateKnowledgebase} className="mb-8">
         <input

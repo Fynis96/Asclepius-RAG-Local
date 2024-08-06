@@ -3,18 +3,31 @@ from ..models.index import Index
 from ..schemas.index import IndexCreate, IndexUpdate
 from ..core.minio_client import get_minio_client
 from ..core.config import settings
+from typing import Union
+from ..schemas.index import IndexUpdate
 import uuid
 import io
 
 def create_index(
     db: Session,
-    index: IndexCreate
+    index: Union[IndexCreate, dict]
 ):
-    qdrant_collection_name = f"collection_{index.id}_{index.knowledgebase_id}"
-    db_index = Index(**index.dict(), qdrant_collection_name=qdrant_collection_name)
+    if isinstance(index, dict):
+        index_data = index
+    else:
+        index_data = index.dict()
+    
+    db_index = Index(**index_data)
     db.add(db_index)
     db.commit()
     db.refresh(db_index)
+    
+    # Generate qdrant_collection_name after we have the index id
+    qdrant_collection_name = f"index_{db_index.id}"
+    db_index.qdrant_collection_name = qdrant_collection_name
+    db.commit()
+    db.refresh(db_index)
+    
     return db_index
 
 def get_index(db: Session, index_id: int):
@@ -32,8 +45,11 @@ def delete_index(db: Session, index_id: int):
     db.commit()
     return db_index
 
-def update_index(db: Session, db_index: Index, index_update: IndexUpdate):
-    update_data = index_update.dict(exclude_unset=True)
+def update_index(db: Session, db_index: Index, index_update: Union[IndexUpdate, dict]):
+    if isinstance(index_update, IndexUpdate):
+        update_data = index_update.dict(exclude_unset=True)
+    else:
+        update_data = index_update
     for key, value in update_data.items():
         setattr(db_index, key, value)
     db.commit()

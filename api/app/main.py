@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from .core.database import Base, engine
 from .models import user, knowledgebase, document
-from .api.endpoints import auth, knowledgebase, user
+from .api.endpoints import auth, knowledgebase, user, index
 from .core.minio_client import ensure_bucket_exists
 from .core.config import settings
 from .core.logger import logger
@@ -56,6 +56,7 @@ logger.info("Including routers...")
 app.include_router(auth.router, prefix="/api/v1", tags=["auth"])
 app.include_router(user.router, prefix="/api/v1", tags=["users"])
 app.include_router(knowledgebase.router, prefix="/api/v1", tags=["knowledgebase"])
+app.include_router(index.router, prefix="/api/v1/index", tags=["index"])
 
 @app.get("/")
 def read_root():

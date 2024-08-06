@@ -7,10 +7,7 @@ from ...schemas.knowledgebase import Knowledgebase, KnowledgebaseCreate, Knowled
 from ...schemas.document import Document, DocumentCreate
 from ...schemas.user import User
 from ..deps import get_current_user
-from ...services.llama_index_service import index_documents, query_knowledgebase
-from ...services.index_service import index_service
 from pydantic import BaseModel
-
 router = APIRouter()
 
 @router.post("/knowledgebases/", response_model=Knowledgebase)
@@ -62,7 +59,11 @@ def delete_knowledgebase(
     db_knowledgebase = crud_knowledgebase.get_knowledgebase(db, knowledgebase_id)
     if not db_knowledgebase or db_knowledgebase.user_id != current_user.id:
         raise HTTPException(status_code=404, detail="Knowledgebase not found")
-    return crud_knowledgebase.delete_knowledgebase(db, db_knowledgebase)
+    try:
+        return crud_knowledgebase.delete_knowledgebase(db, db_knowledgebase)
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"An error occurred while deleting the knowledgebase: {str(e)}")
 
 @router.post("/knowledgebases/{knowledgebase_id}/documents/", response_model=Document)
 async def create_document(
@@ -108,69 +109,3 @@ def delete_document(
         raise HTTPException(status_code=404, detail="Document not found")
     
     return crud_document.delete_document(db, document)
-
-# def index_document(
-#     knowledgebase_id: int,
-#     document_id: int,
-#     db: Session = Depends(get_db),
-#     current_user: User = Depends(get_current_user)
-# ):
-#     knowledgebase = crud_knowledgebase.get_knowledgebase(db, knowledgebase_id)
-#     if not knowledgebase or knowledgebase.user_id != current_user.id:
-#         raise HTTPException(status_code=404, detail="Knowledgebase not found")
-    
-#     document = crud_document.get_document(db, document_id)
-#     if not document or document.knowledgebase_id != knowledgebase_id:
-#         raise HTTPException(status_code=404, detail="Document not found")
-    
-
-def index_knowledgebase():
-    pass
-
-def get_index():
-    pass
-
-def get_indices():
-    pass
-
-def delete_index():
-    pass
-
-def update_index():
-    pass
-
-# Clean up below. Queries to its own chat endpoint
-
-class IndexRequest(BaseModel):
-    document_ids: List[int]
-
-class QueryRequest(BaseModel):
-    query: str
-
-@router.post("/knowledgebases/{knowledgebase_id}/index")
-def index_knowledgebase(
-    knowledgebase_id: int,
-    index_request: IndexRequest,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    knowledgebase = crud_knowledgebase.get_knowledgebase(db, knowledgebase_id)
-    if not knowledgebase or knowledgebase.user_id != current_user.id:
-        raise HTTPException(status_code=404, detail="Knowledgebase not found")
-    
-    index_documents(knowledgebase_id, index_request.document_ids)
-    return {"message": "Knowledgebase indexed successfully"}
-
-@router.post("/knowledgebases/{knowledgebase_id}/query")
-def query_knowledgebase_endpoint(
-    knowledgebase_id: int,
-    query_request: QueryRequest,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    knowledgebase = crud_knowledgebase.get_knowledgebase(db, knowledgebase_id)
-    if not knowledgebase or knowledgebase.user_id != current_user.id:
-        raise HTTPException(status_code=404, detail="Knowledgebase not found")
-    
-    response = query_knowledgebase(knowledgebase_id, query_request.query)
-    return {"response": str(response)}

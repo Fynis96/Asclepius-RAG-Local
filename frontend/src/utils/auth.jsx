@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('refreshToken', response.data.refresh_token);
       await fetchUser();
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Login error:', error.response?.data || error.message);
       throw error;
     }
   };

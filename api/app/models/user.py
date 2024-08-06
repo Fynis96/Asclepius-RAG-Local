@@ -2,6 +2,7 @@ from sqlalchemy import Boolean, Column, Integer, String
 from sqlalchemy.orm import relationship
 from .timestamp import TimestampMixin
 from ..core.database import Base
+from .chat import Chatbot
 
 class User(Base, TimestampMixin):
     __tablename__ = "users"
@@ -14,3 +15,5 @@ class User(Base, TimestampMixin):
 
     knowledgebases = relationship("Knowledgebase", back_populates="user")
     chatbots = relationship("Chatbot", back_populates="user")
+    chats = relationship("Chat", back_populates="user")
+    messages = relationship("Message", back_populates="user")

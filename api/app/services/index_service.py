@@ -5,12 +5,18 @@ from ..core.qdrant_client import get_qdrant_client, get_async_qdrant_client
 from ..core.minio_client import get_minio_client
 from ..crud import index as crud_index
 from ..crud import document as crud_document
+from ..crud import knowledgebase as crud_knowledgebase
 from ..core.database import get_db
 from ..core.config import settings
 from sqlalchemy.orm import Session
 import tempfile
 import os
 import asyncio
+import time
+from qdrant_client.http.exceptions import ResponseHandlingException, UnexpectedResponse
+import logging
+
+logger = logging.getLogger(__name__)
  
 class IndexService:
     def __init__(self):
@@ -19,54 +25,70 @@ class IndexService:
         self.async_qdrant_client = get_async_qdrant_client()
         self.db = next(get_db())
 
-    async def create_index(self, index_id: int):
-        db_index = crud_index.get_index(self.db, index_id)
-        if not db_index:
-            raise ValueError(f"Index with id {index_id} not found")
+    async def create_index(self, knowledgebase_id: int):
+        db_knowledgebase = crud_knowledgebase.get_knowledgebase(self.db, knowledgebase_id)
+        if not db_knowledgebase:
+            raise ValueError(f"Knowledgebase with id {knowledgebase_id} not found")
 
+        # Create a new index entry in the database
+        db_index = crud_index.create_index(self.db, {"knowledgebase_id": knowledgebase_id})
         collection_name = db_index.qdrant_collection_name
 
-        # Delete collection if it exists
-        if await self.async_qdrant_client.collection_exists(collection_name):
-            await self.async_qdrant_client.delete_collection(collection_name)
+        try:
+            # Delete collection if it exists
+            if await self.async_qdrant_client.collection_exists(collection_name):
+                await self.async_qdrant_client.delete_collection(collection_name)
 
-        # Create vector store with hybrid indexing
-        vector_store = QdrantVectorStore(
-            collection_name,
-            client=self.qdrant_client,
-            aclient=self.async_qdrant_client,
-            enable_hybrid=db_index.enabled_hybrid,
-            batch_size=20,
-            fastembed_sparse_model="Qdrant/bm42-all-minilm-l6-v2-attentions"
-        )
+            # Create vector store with hybrid indexing
+            vector_store = QdrantVectorStore(
+                collection_name,
+                client=self.qdrant_client,
+                aclient=self.async_qdrant_client,
+                enable_hybrid=True,
+                batch_size=20,
+                fastembed_sparse_model="Qdrant/bm42-all-minilm-l6-v2-attentions"
+            )
 
-        storage_context = StorageContext.from_defaults(vector_store=vector_store)
-        Settings.chunk_size = 512
-        Settings.embed_model = HuggingFaceEmbedding(model_name=db_index.embed_model)
+            storage_context = StorageContext.from_defaults(vector_store=vector_store)
+            Settings.chunk_size = 512
+            Settings.embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
-        documents = await self._load_documents(db_index.document_ids)
+            documents = await self._load_documents(db_knowledgebase.documents)
 
-        index = VectorStoreIndex.from_documents(
-            documents,
-            storage_context=storage_context,
-        )
+            # Implement retry logic with exponential backoff
+            max_retries = 5
+            base_delay = 1
+            for attempt in range(max_retries):
+                try:
+                    index = VectorStoreIndex.from_documents(
+                        documents,
+                        storage_context=storage_context,
+                    )
+                    break
+                except (ResponseHandlingException, UnexpectedResponse) as e:
+                    if attempt == max_retries - 1:
+                        logger.error(f"Failed to create index after {max_retries} attempts: {str(e)}")
+                        raise
+                    delay = base_delay * (2 ** attempt)
+                    logger.warning(f"Attempt {attempt + 1} failed. Retrying in {delay} seconds...")
+                    await asyncio.sleep(delay)
 
-        # Update index size in the database
-        new_size = len(documents)
-        crud_index.update_index_size(self.db, index_id, new_size)
+            # Update index size in the database
+            new_size = len(documents)
+            crud_index.update_index(self.db, db_index, {"index_size": new_size})
 
-        return index
+            return index
+        except Exception as e:
+            logger.error(f"Error creating index: {str(e)}")
+            # Delete the index entry if creation failed
+            crud_index.delete_index(self.db, db_index.id)
+            raise
 
-    async def _load_documents(self, document_ids: list[int]):
+    async def _load_documents(self, db_documents):
         documents = []
         with tempfile.TemporaryDirectory() as temp_dir:
-            for doc_id in document_ids:
+            for db_document in db_documents:
                 try:
-                    db_document = crud_document.get_document(self.db, doc_id)
-                    if not db_document:
-                        print(f"Document with id {doc_id} not found in the database.")
-                        continue
-
                     file_obj = self.minio_client.get_object(settings.MINIO_BUCKET_NAME,
                         db_document.file_path)
                     file_path = os.path.join(temp_dir, db_document.filename)
@@ -76,7 +98,7 @@ class IndexService:
 
                     documents.extend(SimpleDirectoryReader(temp_dir).load_data())
                 except Exception as e:
-                    print(f"Error loading document {doc_id}: {str(e)}")
+                    print(f"Error loading document {db_document.id}: {str(e)}")
 
         return documents
 

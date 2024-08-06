@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from ..models.knowledgebase import Knowledgebase
+from ..models.index import Index
 from ..schemas.knowledgebase import KnowledgebaseCreate, KnowledgebaseUpdate
 
 def create_knowledgebase(db: Session, knowledgebase: KnowledgebaseCreate, user_id: int):
@@ -23,6 +24,10 @@ def update_knowledgebase(db: Session, db_knowledgebase: Knowledgebase, knowledge
     return db_knowledgebase
 
 def delete_knowledgebase(db: Session, db_knowledgebase: Knowledgebase):
+    # Delete associated indexes first
+    db.query(Index).filter(Index.knowledgebase_id == db_knowledgebase.id).delete()
+    
+    # Then delete the knowledgebase
     db.delete(db_knowledgebase)
     db.commit()
     return db_knowledgebase

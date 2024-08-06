@@ -17,19 +17,21 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.config;
-    if (error.response.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      try {
-        const refreshToken = localStorage.getItem('refreshToken');
-        const response = await refreshTokenApi(refreshToken);
-        localStorage.setItem('token', response.data.access_token);
-        localStorage.setItem('refreshToken', response.data.refresh_token);
-        originalRequest.headers['Authorization'] = `Bearer ${response.data.access_token}`;
-        return api(originalRequest);
-      } catch (refreshError) {
-        // Handle refresh token failure (e.g., logout user)
-        return Promise.reject(refreshError);
+    if (error.response) {
+      const originalRequest = error.config;
+      if (error.response.status === 401 && !originalRequest._retry) {
+        originalRequest._retry = true;
+        try {
+          const refreshToken = localStorage.getItem('refreshToken');
+          const response = await refreshToken(refreshToken);
+          localStorage.setItem('token', response.data.access_token);
+          localStorage.setItem('refreshToken', response.data.refresh_token);
+          originalRequest.headers['Authorization'] = `Bearer ${response.data.access_token}`;
+          return api(originalRequest);
+        } catch (refreshError) {
+          // Handle refresh token failure (e.g., logout user)
+          return Promise.reject(refreshError);
+        }
       }
     }
     return Promise.reject(error);
@@ -91,5 +93,9 @@ export const getDocuments = (knowledgebaseId) =>
 
 export const deleteDocument = (knowledgebaseId, documentId) => 
   api.delete(`/knowledgebases/${knowledgebaseId}/documents/${documentId}`);
+
+// Index documents in a knowledgebase
+export const runKnowledgebaseIndexing = (knowledgebaseId) =>
+  api.post(`/index/run/${knowledgebaseId}`);
 
 export default api;
