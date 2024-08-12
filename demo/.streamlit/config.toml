@@ -1,0 +1,9 @@
+[logger]
+
+level = "debug"
+
+[client]
+showSidebarNavigation = false
+
+[server]
+enableCORS = false
