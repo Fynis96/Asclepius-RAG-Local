@@ -20,6 +20,7 @@ const Navbar = () => {
             {isAuthenticated ? (
               <>
                 <Link to="/dashboard" className="py-2 px-2 font-medium text-gray-500 rounded hover:bg-green-500 hover:text-white transition duration-300">Dashboard</Link>
+                <Link to="/knowledgebases" className="py-2 px-2 font-medium text-gray-500 rounded hover:bg-green-500 hover:text-white transition duration-300">Knowledge Bases</Link>
                 <button onClick={logout} className="py-2 px-2 font-medium text-white bg-red-500 rounded hover:bg-red-400 transition duration-300">Logout</button>
               </>
             ) : (

@@ -10,5 +10,8 @@ export default defineConfig({
     watch: {
       usePolling: true
     }
+  },
+  define: {
+    'import.meta.env.VITE_USE_MOCK_API': JSON.stringify(process.env.VITE_USE_MOCK_API)
   }
 })
